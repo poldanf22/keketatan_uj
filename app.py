@@ -12,7 +12,11 @@ scope = [
 ]
 
 # Buat koneksi dengan kredensial
-creds = Credentials.from_service_account_file("credentials.json", scopes=scope)
+# creds = Credentials.from_service_account_file("credentials.json", scopes=scope)
+# Membuat objek Credentials dari secrets
+creds = Credentials.from_service_account_info(
+    dict(st.secrets["google_credentials"]), scopes=scope
+)
 client = gspread.authorize(creds)
 
 # Buka Google Spreadsheet berdasarkan URL atau ID
