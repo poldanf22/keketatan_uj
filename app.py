@@ -72,185 +72,267 @@ st.markdown(
 # Tambahkan garis pemisah untuk membedakan konten dan footer
 st.markdown("---")
 
-# Halaman Utama
-# 1. Pilih PTN untuk halaman utama
-ptn_options = df['NamaPTN'].unique()
-selected_ptn = st.selectbox("Pilih PTN:", ptn_options)
+# Sidebar menu options
+menu = st.sidebar.radio(
+    "Pilih Menu",
+    ("Beranda", "Pembanding Keketatan", "Peringkat Keketatan")
+)
 
-if selected_ptn:
-    # Filter data berdasarkan PTN yang dipilih di halaman utama
-    filtered_df_main = df[df['NamaPTN'] == selected_ptn]
+# Display content based on menu selection
+if menu == "Beranda":
+    st.header("Selamat Datang")
+    st.write("""
+Aplikasi ini dirancang untuk membantu siswa yang ingin masuk Perguruan Tinggi Negeri (PTN) dalam memahami tingkat persaingan di program studi (prodi) yang mereka tuju. Dengan data daya tampung dan jumlah peminat dari tahun 2015 hingga 2023, pengguna dapat melihat keketatan berbagai prodi di PTN.
 
-    # 2. Pilih Jenjang untuk halaman utama
-    jenjang_options_main = filtered_df_main['Jenjang'].unique()
-    selected_jenjang = st.selectbox("Pilih Jenjang:", jenjang_options_main)
+**Fitur aplikasi ini mencakup:**
+- **Perbandingan Keketatan**: Bandingkan keketatan antara dua prodi secara langsung.
+- **Peringkat Keketatan**: Lihat peringkat keketatan berdasarkan kampus atau kelompok prodi tertentu.
 
-    if selected_jenjang:
-        # Filter data lebih lanjut berdasarkan jenjang di halaman utama
-        filtered_df_main = filtered_df_main[filtered_df_main['Jenjang']
-                                            == selected_jenjang]
+**Tujuan dari aplikasi ini** adalah agar siswa lebih menyadari tingkat persaingan di prodi yang mereka pilih, sehingga dapat menghindari bias intelektual—persepsi bahwa mereka siap meskipun kemampuan mungkin perlu ditingkatkan.
 
-        # 3. Pilih Program Studi untuk halaman utama
-        prodi_options_main = filtered_df_main['NamaProdi'].unique()
-        selected_prodi = st.selectbox(
-            "Pilih Program Studi:", prodi_options_main)
+Aplikasi ini dibuat pada tahun 2024 dan tersedia untuk umum. Kami mengajak pengguna untuk menggunakannya secara bijak demi perencanaan pendidikan yang lebih matang dan realistis.
+""")
 
-# Sidebar untuk Pilihan Pembanding
-st.sidebar.title("Pembanding Program Studi")
 
-# Sidebar - Pilih PTN kedua
-selected_ptn_2 = st.sidebar.selectbox("Pilih PTN (Pembanding):", ptn_options)
+elif menu == "Pembanding Keketatan":
+    # Halaman Utama
+    # Buat dictionary mapping NamaPTN ke PTN untuk dropdown
+    ptn_mapping = dict(zip(df['NamaPTN'], df['PTN']))
+    # 1. Pilih PTN untuk halaman utama
+    ptn_options = df['NamaPTN'].unique()
+    selected_ptn = st.selectbox("Pilih PTN:", ptn_options)
 
-if selected_ptn_2:
-    # Filter data berdasarkan PTN yang dipilih di sidebar
-    filtered_df_sidebar = df[df['NamaPTN'] == selected_ptn_2]
+    if selected_ptn:
+        # Filter data berdasarkan PTN yang dipilih di halaman utama
+        filtered_df_main = df[df['NamaPTN'] == selected_ptn]
 
-    # Sidebar - Pilih Jenjang kedua
-    jenjang_options_sidebar = filtered_df_sidebar['Jenjang'].unique()
-    selected_jenjang_2 = st.sidebar.selectbox(
-        "Pilih Jenjang (Pembanding):", jenjang_options_sidebar)
+        # 2. Pilih Jenjang untuk halaman utama
+        jenjang_options_main = filtered_df_main['Jenjang'].unique()
+        selected_jenjang = st.selectbox("Pilih Jenjang:", jenjang_options_main)
 
-    if selected_jenjang_2:
-        # Filter data lebih lanjut berdasarkan jenjang di sidebar
-        filtered_df_sidebar = filtered_df_sidebar[filtered_df_sidebar['Jenjang']
-                                                  == selected_jenjang_2]
+        if selected_jenjang:
+            # Filter data lebih lanjut berdasarkan jenjang di halaman utama
+            filtered_df_main = filtered_df_main[filtered_df_main['Jenjang']
+                                                == selected_jenjang]
 
-        # Sidebar - Pilih Program Studi Kedua
-        prodi_options_2 = filtered_df_sidebar['NamaProdi'].unique()
-        selected_prodi_2 = st.sidebar.selectbox(
-            "Pilih Program Studi Kedua:", prodi_options_2)
+            # 3. Pilih Program Studi untuk halaman utama
+            prodi_options_main = filtered_df_main['NamaProdi'].unique()
+            selected_prodi = st.selectbox(
+                "Pilih Program Studi:", prodi_options_main)
 
-# 4. Pilih Jenis Grafik
-chart_type = st.selectbox("Pilih Jenis Grafik:", [
-                          "Grafik Batang", "Scatter Plot"])
+    # Sidebar untuk Pilihan Pembanding
+    st.sidebar.title("Pembanding Program Studi")
 
-# Pastikan kedua program studi dipilih
-if selected_prodi and selected_prodi_2:
-    # Filter data berdasarkan Program Studi pertama
-    filtered_df_1 = filtered_df_main[filtered_df_main['NamaProdi']
-                                     == selected_prodi]
+    # Sidebar - Pilih PTN kedua
+    selected_ptn_2 = st.sidebar.selectbox(
+        "Pilih PTN (Pembanding):", ptn_options)
 
-    # Filter data berdasarkan Program Studi kedua
-    filtered_df_2 = filtered_df_sidebar[filtered_df_sidebar['NamaProdi']
-                                        == selected_prodi_2]
+    if selected_ptn_2:
+        # Filter data berdasarkan PTN yang dipilih di sidebar
+        filtered_df_sidebar = df[df['NamaPTN'] == selected_ptn_2]
 
-    # Ambil data daya tampung (dt15 hingga dt23) dan jumlah peminat (jp15 hingga jp23)
-    dt_columns = [f'dt{i}' for i in range(15, 24)]
-    jp_columns = [f'jp{i}' for i in range(15, 24)]
+        # Sidebar - Pilih Jenjang kedua
+        jenjang_options_sidebar = filtered_df_sidebar['Jenjang'].unique()
+        selected_jenjang_2 = st.sidebar.selectbox(
+            "Pilih Jenjang (Pembanding):", jenjang_options_sidebar)
 
-    # Konversi kolom dt dan jp ke tipe numerik dan tangani NaN
-    filtered_df_1[dt_columns] = filtered_df_1[dt_columns].apply(
-        pd.to_numeric, errors='coerce').fillna(0)
-    filtered_df_1[jp_columns] = filtered_df_1[jp_columns].apply(
-        pd.to_numeric, errors='coerce').fillna(0)
-    filtered_df_2[dt_columns] = filtered_df_2[dt_columns].apply(
-        pd.to_numeric, errors='coerce').fillna(0)
-    filtered_df_2[jp_columns] = filtered_df_2[jp_columns].apply(
-        pd.to_numeric, errors='coerce').fillna(0)
+        if selected_jenjang_2:
+            # Filter data lebih lanjut berdasarkan jenjang di sidebar
+            filtered_df_sidebar = filtered_df_sidebar[filtered_df_sidebar['Jenjang']
+                                                      == selected_jenjang_2]
 
-    # Definisikan dt_values dan jp_values lebih awal untuk digunakan di berbagai bagian
-    dt_values_1 = filtered_df_1[dt_columns].values[0]
-    jp_values_1 = filtered_df_1[jp_columns].values[0]
-    dt_values_2 = filtered_df_2[dt_columns].values[0]
-    jp_values_2 = filtered_df_2[jp_columns].values[0]
+            # Sidebar - Pilih Program Studi Kedua
+            prodi_options_2 = filtered_df_sidebar['NamaProdi'].unique()
+            selected_prodi_2 = st.sidebar.selectbox(
+                "Pilih Program Studi Kedua:", prodi_options_2)
 
-    if chart_type == "Grafik Batang":
-        # Plot Daya Tampung
-        st.subheader(
-            f"Daya Tampung ({selected_ptn} - {selected_prodi} vs {selected_ptn_2} - {selected_prodi_2})")
-        fig, ax = plt.subplots()
-        ax.bar(dt_columns, dt_values_1, color='skyblue',
-               label=f"{selected_ptn} - {selected_prodi}")
-        ax.bar(dt_columns, dt_values_2, color='lightgreen', alpha=0.7,
-               label=f"{selected_ptn_2} - {selected_prodi_2}")
-        ax.set_xlabel("Tahun")
-        ax.set_ylabel("Daya Tampung")
-        ax.set_title("Daya Tampung per Tahun")
-        ax.legend()
-        st.pyplot(fig)
+    # 4. Pilih Jenis Grafik
+    chart_type = st.selectbox("Pilih Jenis Grafik:", [
+                              "Grafik Batang", "Scatter Plot"])
 
-        # Plot Jumlah Peminat
-        st.subheader(
-            f"Jumlah Peminat ({selected_ptn} - {selected_prodi} vs {selected_ptn_2} - {selected_prodi_2})")
-        fig, ax = plt.subplots()
-        ax.bar(jp_columns, jp_values_1, color='salmon',
-               label=f"{selected_ptn} - {selected_prodi}")
-        ax.bar(jp_columns, jp_values_2, color='orange', alpha=0.7,
-               label=f"{selected_ptn_2} - {selected_prodi_2}")
-        ax.set_xlabel("Tahun")
-        ax.set_ylabel("Jumlah Peminat")
-        ax.set_title("Jumlah Peminat per Tahun")
-        ax.legend()
-        st.pyplot(fig)
+    # Pastikan kedua program studi dipilih
+    if selected_prodi and selected_prodi_2:
+        # Filter data berdasarkan Program Studi pertama
+        filtered_df_1 = filtered_df_main[filtered_df_main['NamaProdi']
+                                         == selected_prodi]
 
-    elif chart_type == "Scatter Plot":
-        # Plot Scatter antara Daya Tampung dan Jumlah Peminat dengan trend line
-        st.subheader(
-            f"Scatter Plot Daya Tampung vs Jumlah Peminat ({selected_ptn} - {selected_prodi} vs {selected_ptn_2} - {selected_prodi_2})")
-        fig, ax = plt.subplots()
+        # Filter data berdasarkan Program Studi kedua
+        filtered_df_2 = filtered_df_sidebar[filtered_df_sidebar['NamaProdi']
+                                            == selected_prodi_2]
 
-        # Scatter Plot for Prodi 1
-        ax.scatter(dt_values_1, jp_values_1, color='purple',
-                   label=f"{selected_ptn} - {selected_prodi}")
+        # Ambil data daya tampung (dt15 hingga dt23) dan jumlah peminat (jp15 hingga jp23)
+        dt_columns = [f'dt{i}' for i in range(15, 24)]
+        jp_columns = [f'jp{i}' for i in range(15, 24)]
 
-        if len(np.unique(dt_values_1)) > 1 and len(np.unique(jp_values_1)) > 1:
-            m1, b1 = np.polyfit(dt_values_1, jp_values_1, 1)
-            trend_line_1 = m1 * np.array(dt_values_1) + b1
-            ax.plot(dt_values_1, trend_line_1, color='blue',
-                    linestyle='--', label=f"Trend Line {selected_prodi}")
+        # Konversi kolom dt dan jp ke tipe numerik dan tangani NaN
+        filtered_df_1[dt_columns] = filtered_df_1[dt_columns].apply(
+            pd.to_numeric, errors='coerce').fillna(0)
+        filtered_df_1[jp_columns] = filtered_df_1[jp_columns].apply(
+            pd.to_numeric, errors='coerce').fillna(0)
+        filtered_df_2[dt_columns] = filtered_df_2[dt_columns].apply(
+            pd.to_numeric, errors='coerce').fillna(0)
+        filtered_df_2[jp_columns] = filtered_df_2[jp_columns].apply(
+            pd.to_numeric, errors='coerce').fillna(0)
+
+        # Definisikan dt_values dan jp_values untuk digunakan di berbagai bagian
+        dt_values_1 = filtered_df_1[dt_columns].values[0]
+        jp_values_1 = filtered_df_1[jp_columns].values[0]
+        dt_values_2 = filtered_df_2[dt_columns].values[0]
+        jp_values_2 = filtered_df_2[jp_columns].values[0]
+
+        if chart_type == "Grafik Batang":
+            # Plot Daya Tampung
+            st.subheader(
+                f"Daya Tampung ({ptn_mapping[selected_ptn]} - {selected_prodi} vs {ptn_mapping[selected_ptn_2]} - {selected_prodi_2})")
+            fig, ax = plt.subplots()
+            ax.bar(dt_columns, dt_values_1, color='skyblue',
+                   label=f"{ptn_mapping[selected_ptn]} - {selected_prodi}")
+            ax.bar(dt_columns, dt_values_2, color='lightgreen', alpha=0.7,
+                   label=f"{ptn_mapping[selected_ptn_2]} - {selected_prodi_2}")
+            ax.set_xlabel("Tahun")
+            ax.set_ylabel("Daya Tampung")
+            ax.set_title("Daya Tampung per Tahun")
+            ax.legend()
+            st.pyplot(fig)
+
+            # Plot Jumlah Peminat
+            st.subheader(
+                f"Jumlah Peminat ({ptn_mapping[selected_ptn]} - {selected_prodi} vs {ptn_mapping[selected_ptn_2]} - {selected_prodi_2})")
+            fig, ax = plt.subplots()
+            ax.bar(jp_columns, jp_values_1, color='salmon',
+                   label=f"{ptn_mapping[selected_ptn]} - {selected_prodi}")
+            ax.bar(jp_columns, jp_values_2, color='orange', alpha=0.7,
+                   label=f"{ptn_mapping[selected_ptn_2]} - {selected_prodi_2}")
+            ax.set_xlabel("Tahun")
+            ax.set_ylabel("Jumlah Peminat")
+            ax.set_title("Jumlah Peminat per Tahun")
+            ax.legend()
+            st.pyplot(fig)
+
+        elif chart_type == "Scatter Plot":
+            # Plot Scatter antara Daya Tampung dan Jumlah Peminat dengan trend line
+            st.subheader(
+                f"Scatter Plot Daya Tampung vs Jumlah Peminat ({ptn_mapping[selected_ptn]} - {selected_prodi} vs {ptn_mapping[selected_ptn_2]} - {selected_prodi_2})")
+            fig, ax = plt.subplots()
+            ax.scatter(dt_values_1, jp_values_1, color='purple',
+                       label=f"{ptn_mapping[selected_ptn]} - {selected_prodi}")
+            ax.scatter(dt_values_2, jp_values_2, color='green',
+                       label=f"{ptn_mapping[selected_ptn_2]} - {selected_prodi_2}")
+            ax.set_xlabel("Daya Tampung")
+            ax.set_ylabel("Jumlah Peminat")
+            ax.set_title("Scatter Plot antara Daya Tampung dan Jumlah Peminat")
+            ax.legend()
+            st.pyplot(fig)
+
+        # Analisis Otomatis
+        avg_dt_1, avg_jp_1 = np.mean(dt_values_1), np.mean(jp_values_1)
+        avg_dt_2, avg_jp_2 = np.mean(dt_values_2), np.mean(jp_values_2)
+        max_dt_1, max_jp_1 = np.max(dt_values_1), np.max(jp_values_1)
+        max_dt_2, max_jp_2 = np.max(dt_values_2), np.max(jp_values_2)
+
+        # Hitung rata-rata rasio keketatan
+        ratio_1 = avg_jp_1 / avg_dt_1 if avg_dt_1 > 0 else 0
+        ratio_2 = avg_jp_2 / avg_dt_2 if avg_dt_2 > 0 else 0
+
+        st.write("### Analisis:")
+
+        # Membuat dua kolom berdampingan untuk analisis perbandingan
+        col1, col2 = st.columns(2)
+
+        # Informasi Prodi 1 di Kolom 1
+        with col1:
+            st.write(f"**{selected_prodi} ({selected_ptn}):**")
+            st.write(f"- Rata-rata daya tampung: {avg_dt_1:.2f}")
+            st.write(f"- Rata-rata jumlah peminat: {avg_jp_1:.2f}")
+            st.write(f"- Daya tampung maksimum: {max_dt_1}")
+            st.write(f"- Jumlah peminat maksimum: {max_jp_1}")
+            st.write(f"- Rasio keketatan: 1:{ratio_1:.0f}")
+
+        # Informasi Prodi 2 di Kolom 2
+        with col2:
+            st.write(f"**{selected_prodi_2} ({selected_ptn_2}):**")
+            st.write(f"- Rata-rata daya tampung: {avg_dt_2:.2f}")
+            st.write(f"- Rata-rata jumlah peminat: {avg_jp_2:.2f}")
+            st.write(f"- Daya tampung maksimum: {max_dt_2}")
+            st.write(f"- Jumlah peminat maksimum: {max_jp_2}")
+            st.write(f"- Rasio keketatan: 1:{ratio_2:.0f}")
+
+
+elif menu == "Peringkat Keketatan":
+    st.header("Peringkat Keketatan")
+    st.write("Di sini akan ditampilkan peringkat keketatan.")
+
+    # Tambahkan pilihan untuk sortir berdasarkan Kelompok atau NamaPTN
+    sort_option = st.selectbox("Sortir berdasarkan:", ["Kelompok", "Nama PTN"])
+
+    # Pilih opsi sortir
+    if sort_option == "Kelompok":
+        # Sortir berdasarkan Kelompok2
+        selected_option = st.selectbox(
+            "Pilih Kelompok:", df['Kelompok2'].unique())
+        df_filtered = df[df['Kelompok2'] == selected_option]
+    else:
+        # Sortir berdasarkan NamaPTN
+        selected_option = st.selectbox(
+            "Pilih Nama PTN:", df['NamaPTN'].unique())
+        df_filtered = df[df['NamaPTN'] == selected_option]
+
+    # Periksa jika df_filtered kosong
+    if df_filtered.empty:
+        st.write("Tidak ada data yang sesuai dengan pilihan yang dipilih.")
+    else:
+        # Identifikasi kolom daya tampung (dt15, dt16, ..., dt23) dan jumlah peminat (jp15, jp16, ..., jp23)
+        dt_columns = [f'dt{i}' for i in range(15, 24)]
+        jp_columns = [f'jp{i}' for i in range(15, 24)]
+        last_year_dt_column = 'dt23'  # Daya tampung untuk tahun terakhir
+
+        # Pastikan kolom dt dan jp ditemukan
+        if dt_columns and jp_columns and last_year_dt_column in df_filtered.columns:
+            # Konversi kolom dt dan jp ke tipe numerik dan tangani NaN
+            df_filtered[dt_columns] = df_filtered[dt_columns].apply(
+                pd.to_numeric, errors='coerce').fillna(0)
+            df_filtered[jp_columns] = df_filtered[jp_columns].apply(
+                pd.to_numeric, errors='coerce').fillna(0)
+
+            # Hitung rata-rata dan maksimum daya tampung dan jumlah peminat
+            df_filtered['avg_dt'] = df_filtered[dt_columns].mean(axis=1)
+            df_filtered['avg_jp'] = df_filtered[jp_columns].mean(axis=1)
+            df_filtered['max_dt'] = df_filtered[dt_columns].max(axis=1)
+            df_filtered['max_jp'] = df_filtered[jp_columns].max(axis=1)
+
+            # Hitung rasio keketatan
+            df_filtered['Rasio Keketatan'] = df_filtered.apply(
+                lambda x: f"1:{x['avg_jp'] / x['avg_dt']:.0f}" if x['avg_dt'] > 0 else "Prodi Baru",
+                axis=1
+            )
+
+            # Tambahkan kolom daya tampung tahun terakhir (dt23)
+            df_filtered['Daya Tampung Terakhir'] = df_filtered[last_year_dt_column]
+
+            # Filter kolom yang dibutuhkan dan urutkan berdasarkan Rasio Keketatan
+            df_filtered = df_filtered[['NamaProdi', 'PTN', 'Jenjang',
+                                       'Propinsi', 'Rasio Keketatan', 'Daya Tampung Terakhir']]
+
+            # Urutkan dengan ekstraksi nilai rasio keketatan numerik
+            df_filtered = df_filtered.sort_values(
+                by='Rasio Keketatan',
+                key=lambda x: pd.to_numeric(x.str.extract(
+                    ':(\d+)$')[0], errors='coerce').fillna(float('inf')),
+                ascending=True
+            )
+
+            # Tambahkan nomor urut
+            df_filtered.reset_index(drop=True, inplace=True)
+            df_filtered.index += 1
+            df_filtered.index.name = 'No'
+
+            # Tampilkan tabel
+            st.write(
+                f"### Tabel Rata-rata Rasio Keketatan untuk {sort_option} {selected_option}")
+            st.dataframe(df_filtered)
         else:
             st.write(
-                f"Garis tren untuk {selected_ptn} - {selected_prodi} tidak dapat dihitung karena data kurang bervariasi.")
-
-        ax.scatter(dt_values_2, jp_values_2, color='green',
-                   label=f"{selected_ptn_2} - {selected_prodi_2}")
-
-        if len(np.unique(dt_values_2)) > 1 and len(np.unique(jp_values_2)) > 1:
-            m2, b2 = np.polyfit(dt_values_2, jp_values_2, 1)
-            trend_line_2 = m2 * np.array(dt_values_2) + b2
-            ax.plot(dt_values_2, trend_line_2, color='orange',
-                    linestyle='--', label=f"Trend Line {selected_prodi_2}")
-        else:
-            st.write(
-                f"Garis tren untuk {selected_ptn_2} - {selected_prodi_2} tidak dapat dihitung karena data kurang bervariasi.")
-
-        ax.set_xlabel("Daya Tampung")
-        ax.set_ylabel("Jumlah Peminat")
-        ax.set_title("Scatter Plot antara Daya Tampung dan Jumlah Peminat")
-        ax.legend()
-        st.pyplot(fig)
-
-    # Analisis Otomatis
-    avg_dt_1, avg_jp_1 = np.mean(dt_values_1), np.mean(jp_values_1)
-    avg_dt_2, avg_jp_2 = np.mean(dt_values_2), np.mean(jp_values_2)
-    max_dt_1, max_jp_1 = np.max(dt_values_1), np.max(jp_values_1)
-    max_dt_2, max_jp_2 = np.max(dt_values_2), np.max(jp_values_2)
-
-    # Hitung rata-rata rasio keketatan
-    if avg_dt_1 > 0:
-        ratio_1 = avg_jp_1 / avg_dt_1
-    else:
-        ratio_1 = 0
-
-    if avg_dt_2 > 0:
-        ratio_2 = avg_jp_2 / avg_dt_2
-    else:
-        ratio_2 = 0
-
-    st.write("### Analisis Otomatis:")
-    st.write(f"**{selected_prodi} ({selected_ptn}):**")
-    st.write(f"- Rata-rata daya tampung: {avg_dt_1:.2f}")
-    st.write(f"- Rata-rata jumlah peminat: {avg_jp_1:.2f}")
-    st.write(f"- Daya tampung maksimum: {max_dt_1}")
-    st.write(f"- Jumlah peminat maksimum: {max_jp_1}")
-    st.write(f"- Rasio keketatan: 1:{ratio_1:.0f}")
-
-    st.write(f"**{selected_prodi_2} ({selected_ptn_2}):**")
-    st.write(f"- Rata-rata daya tampung: {avg_dt_2:.2f}")
-    st.write(f"- Rata-rata jumlah peminat: {avg_jp_2:.2f}")
-    st.write(f"- Daya tampung maksimum: {max_dt_2}")
-    st.write(f"- Jumlah peminat maksimum: {max_jp_2}")
-    st.write(f"- Rasio keketatan: 1:{ratio_2:.0f}")
+                "Kolom daya tampung atau jumlah peminat tidak ditemukan dalam data.")
 
 # Copyright footer menggunakan HTML dan CSS
 footer = """
