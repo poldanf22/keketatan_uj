@@ -4,6 +4,14 @@ from google.oauth2.service_account import Credentials
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+from ui_info import show_info_ui
+from its_info import show_info_its
+from itb_info import show_info_itb
+from unpad_info import show_info_unpad
+from ipb_info import show_info_ipb
+from ugm_info import show_info_ugm
+from ub_info import show_info_ub
+from kelulusan_ext import show_kelulusan_ext
 
 # Konfigurasi Google Sheets API
 scope = [
@@ -54,7 +62,7 @@ st.markdown(
 )
 
 # Konten utama aplikasi Streamlit Anda
-st.markdown("<h1 class='main-title'>📊 Aplikasi Perbandingan Daya Tampung dan Jumlah Peminat PTN</h1>",
+st.markdown("<h1 class='main-title'>📊 Aplikasi Perbandingan Keketatan dan Informasi PTN</h1>",
             unsafe_allow_html=True)
 st.markdown("<p class='sub-title'>Data dari tahun 2015 sampai 2023 pada jalur Tes Tulis</p>",
             unsafe_allow_html=True)
@@ -63,7 +71,7 @@ st.markdown("<p class='sub-title'>Data dari tahun 2015 sampai 2023 pada jalur Te
 st.markdown(
     """
     <div style="display: flex; justify-content: center;">
-        <img src="https://i.giphy.com/media/v1.Y2lkPTc5MGI3NjExZHdtZGwxbm5xZjdpZ2FuYjM1ZjZidmQxbTUxbzFoa2EzcmZnenRzMyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/1hqYk0leUMddBBkAM7/giphy.gif"
+        <img src="https://media.giphy.com/media/fUQ4rhUZJYiQsas6WD/giphy.gif?cid=82a1493b8e1q6d0vxka501wvaykh9exz2rzjtbu4s9u60mkn&ep=v1_gifs_trending&rid=giphy.gif&ct=g"
         width="200">
     </div>
     """,
@@ -71,11 +79,15 @@ st.markdown(
 )
 # Tambahkan garis pemisah untuk membedakan konten dan footer
 st.markdown("---")
-
+st.markdown(
+    "<small>Sumber: <a href='https://docs.google.com/spreadsheets/d/1LuXdslowlr7mFDAVQcHZtEwYNJxs19GQiExl6OnmbEY/edit?gid=0#gid=0' target='_blank'>Google Sheets</a></small>",
+    unsafe_allow_html=True
+)
 # Sidebar menu options
 menu = st.sidebar.radio(
     "Pilih Menu",
-    ("Beranda", "Pembanding Keketatan", "Peringkat Keketatan")
+    ("Beranda", "Pembanding Keketatan", "Peringkat Keketatan", "Kelulusan Eksternal SNBP", "Info SNBP UI", "Info SNBP ITS",
+     "Info SNBP ITB", "Info SNBP UGM", "Info SNBP UNPAD", "Info SNBP IPB")
 )
 
 # Display content based on menu selection
@@ -260,7 +272,6 @@ elif menu == "Pembanding Keketatan":
 
 elif menu == "Peringkat Keketatan":
     st.header("Peringkat Keketatan")
-    st.write("Di sini akan ditampilkan peringkat keketatan.")
 
     # Tambahkan pilihan untuk sortir berdasarkan Kelompok atau NamaPTN
     sort_option = st.selectbox("Sortir berdasarkan:", ["Kelompok", "Nama PTN"])
@@ -333,6 +344,38 @@ elif menu == "Peringkat Keketatan":
         else:
             st.write(
                 "Kolom daya tampung atau jumlah peminat tidak ditemukan dalam data.")
+
+elif menu == "Info SNBP UI":
+    st.title("Informasi SNBP di UI")
+    show_info_ui()
+
+elif menu == "Info SNBP UGM":
+    st.title("Informasi SNBP di UGM")
+    show_info_ugm()
+
+elif menu == "Info SNBP ITS":
+    st.title("Informasi SNBP di ITS")
+    show_info_its()
+
+elif menu == "Info SNBP UNPAD":
+    st.title("Informasi SNBP di UNPAD")
+    show_info_unpad()
+
+elif menu == "Info SNBP ITB":
+    st.title("Informasi SNBP di ITB")
+    show_info_itb()
+
+elif menu == "Info SNBP IPB":
+    st.title("Informasi SNBP di IPB")
+    show_info_ipb()
+
+elif menu == "Info SNBP UB":
+    st.title("Informasi SNBP di UB")
+    show_info_ub()
+
+elif menu == "Kelulusan Eksternal SNBP":
+    st.title("Data Kelulusan SNBP")
+    show_kelulusan_ext()
 
 # Copyright footer menggunakan HTML dan CSS
 footer = """
