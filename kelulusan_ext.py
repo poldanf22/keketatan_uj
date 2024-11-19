@@ -83,3 +83,32 @@ def show_kelulusan_ext():
             st.write("Kolom 'Rata-Rata' tidak ditemukan di dalam data.")
     else:
         st.write("Data tidak ditemukan atau kosong.")
+
+    # Pastikan kolom yang dibutuhkan ada di DataFrame
+    st.subheader("Filter Data Berdasarkan Nama Sekolah")
+    required_columns = ['Sekolah', 'Diterima di PTN', 'TAHUN']
+
+    if not all(col in df.columns for col in required_columns):
+        st.error(
+            f"DataFrame tidak memiliki kolom yang dibutuhkan: {', '.join(required_columns)}")
+    else:
+        # Dropdown untuk memilih sekolah secara unik
+        unique_schools = df['Sekolah'].dropna().unique()
+        selected_school = st.selectbox(
+            "Pilih Sekolah:", options=unique_schools)
+
+        if selected_school:
+            # Filter data berdasarkan sekolah yang dipilih
+            filtered_df = df[df['Sekolah'] == selected_school]
+
+            # Hitung jumlah PTN berdasarkan kolom 'Diterima di PTN' dan 'TAHUN'
+            ptn_count = (
+                filtered_df.groupby(['TAHUN', 'Diterima di PTN'])
+                .size()
+                .reset_index(name='Jumlah')
+            )
+
+            # Tampilkan tabel hasil
+            st.write(
+                f"Jumlah PTN yang diterima dari Sekolah '{selected_school}' berdasarkan tahun:")
+            st.dataframe(ptn_count)
