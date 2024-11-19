@@ -56,6 +56,9 @@ def show_kelulusan_ext():
     else:
         kelompok_terpilih = st.text_input("Masukkan nama Kelompok Prodi:")
 
+    # Kolom yang tidak ingin ditampilkan
+    columns_to_exclude = ['No', 'Nama', '%', 'NAIK/TURUN']
+
     # Filter DataFrame berdasarkan input nilai rata-rata dan pilihan filter
     if not df.empty:
         if 'Rata-Rata' in df.columns:  # Pastikan kolom 'Rata-Rata' ada di DataFrame
@@ -68,6 +71,10 @@ def show_kelulusan_ext():
             elif pilihan_filter == "Kelompok Prodi" and 'Kelompok' in df.columns:
                 filtered_df = filtered_df[filtered_df['Kelompok'].str.contains(
                     kelompok_terpilih, na=False, case=False)]
+
+            # Hapus kolom yang tidak ingin ditampilkan
+            filtered_df = filtered_df.drop(columns=[
+                                           col for col in columns_to_exclude if col in filtered_df.columns], errors='ignore')
 
             st.write(
                 f"Data dengan kolom 'Rata-Rata' di bawah atau sama dengan {nilai_rata_rata}:")

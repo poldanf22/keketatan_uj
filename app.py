@@ -79,10 +79,7 @@ st.markdown(
 )
 # Tambahkan garis pemisah untuk membedakan konten dan footer
 st.markdown("---")
-st.markdown(
-    "<small>Sumber: <a href='https://docs.google.com/spreadsheets/d/1LuXdslowlr7mFDAVQcHZtEwYNJxs19GQiExl6OnmbEY/edit?gid=0#gid=0' target='_blank'>Google Sheets</a></small>",
-    unsafe_allow_html=True
-)
+
 # Sidebar menu options
 menu = st.sidebar.radio(
     "Pilih Menu",
@@ -99,15 +96,20 @@ Aplikasi ini dirancang untuk membantu siswa yang ingin masuk Perguruan Tinggi Ne
 **Fitur aplikasi ini mencakup:**
 - **Perbandingan Keketatan**: Bandingkan keketatan antara dua prodi secara langsung.
 - **Peringkat Keketatan**: Lihat peringkat keketatan berdasarkan kampus atau kelompok prodi tertentu.
+- **Informasi Seputar SNBP Kampus Terpilih**: Akses data SNBP, termasuk daya tampung dan jumlah peminat di kampus unggulan seperti UI, ITS, ITB, UGM, UNPAD, dan IPB.
+- **Data Kelulusan Siswa Eksternal**: Jelajahi data kelulusan siswa dari sekolah lain untuk menambah wawasan mengenai persaingan di PTN.
 
 **Tujuan dari aplikasi ini** adalah agar siswa lebih menyadari tingkat persaingan di prodi yang mereka pilih, sehingga dapat menghindari bias intelektual—persepsi bahwa mereka siap meskipun kemampuan mungkin perlu ditingkatkan.
 
 Aplikasi ini dibuat pada tahun 2024 dan tersedia untuk umum. Kami mengajak pengguna untuk menggunakannya secara bijak demi perencanaan pendidikan yang lebih matang dan realistis.
 """)
 
-
 elif menu == "Pembanding Keketatan":
     # Halaman Utama
+    st.markdown(
+        "<small>Sumber: <a href='https://docs.google.com/spreadsheets/d/1LuXdslowlr7mFDAVQcHZtEwYNJxs19GQiExl6OnmbEY/edit?gid=0#gid=0' target='_blank'>Google Sheets</a></small>",
+        unsafe_allow_html=True
+    )
     # Buat dictionary mapping NamaPTN ke PTN untuk dropdown
     ptn_mapping = dict(zip(df['NamaPTN'], df['PTN']))
     # 1. Pilih PTN untuk halaman utama
@@ -271,6 +273,10 @@ elif menu == "Pembanding Keketatan":
 
 
 elif menu == "Peringkat Keketatan":
+    st.markdown(
+        "<small>Sumber: <a href='https://docs.google.com/spreadsheets/d/1LuXdslowlr7mFDAVQcHZtEwYNJxs19GQiExl6OnmbEY/edit?gid=0#gid=0' target='_blank'>Google Sheets</a></small>",
+        unsafe_allow_html=True
+    )
     st.header("Peringkat Keketatan")
 
     # Tambahkan pilihan untuk sortir berdasarkan Kelompok atau NamaPTN
@@ -374,6 +380,10 @@ elif menu == "Info SNBP UB":
     show_info_ub()
 
 elif menu == "Kelulusan Eksternal SNBP":
+    st.markdown(
+        "<small>Sumber: <a href='https://docs.google.com/spreadsheets/d/1m2ZTZ1sLSap9fkbfDrItjJdH7P4z3y7Vi_7AkbajoWQ/edit?gid=0#gid=0' target='_blank'>Google Sheets</a></small>",
+        unsafe_allow_html=True
+    )
     st.title("Data Kelulusan SNBP")
     show_kelulusan_ext()
 
