@@ -57,7 +57,7 @@ def show_kelulusan_ext():
         kelompok_terpilih = st.text_input("Masukkan nama Kelompok Prodi:")
 
     # Kolom yang tidak ingin ditampilkan
-    columns_to_exclude = ['No', 'Nama', '%', 'NAIK/TURUN']
+    columns_to_exclude = ['No', 'NAMA', '%', 'NAIK/TURUN']
 
     # Filter DataFrame berdasarkan input nilai rata-rata dan pilihan filter
     if not df.empty:
