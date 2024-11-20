@@ -224,18 +224,39 @@ elif menu == "Pembanding Keketatan":
             st.pyplot(fig)
 
         elif chart_type == "Scatter Plot":
-            # Plot Scatter antara Daya Tampung dan Jumlah Peminat dengan trend line
+            # Plot Scatter antara Daya Tampung dan Jumlah Peminat dengan trendline
             st.subheader(
-                f"Scatter Plot Daya Tampung vs Jumlah Peminat ({ptn_mapping[selected_ptn]} - {selected_prodi} vs {ptn_mapping[selected_ptn_2]} - {selected_prodi_2})")
+                f"Scatter Plot Daya Tampung vs Jumlah Peminat ({ptn_mapping[selected_ptn]} - {selected_prodi} vs {ptn_mapping[selected_ptn_2]} - {selected_prodi_2})"
+            )
             fig, ax = plt.subplots()
+
+            # Plot scatter untuk dataset pertama
             ax.scatter(dt_values_1, jp_values_1, color='purple',
                        label=f"{ptn_mapping[selected_ptn]} - {selected_prodi}")
+
+            # Tambahkan trendline untuk dataset pertama
+            z1 = np.polyfit(dt_values_1, jp_values_1, 1)  # Linear fit
+            p1 = np.poly1d(z1)
+            ax.plot(dt_values_1, p1(dt_values_1), color='purple',
+                    linestyle='--', label=f"Trendline {ptn_mapping[selected_ptn]}")
+
+            # Plot scatter untuk dataset kedua
             ax.scatter(dt_values_2, jp_values_2, color='green',
                        label=f"{ptn_mapping[selected_ptn_2]} - {selected_prodi_2}")
+
+            # Tambahkan trendline untuk dataset kedua
+            z2 = np.polyfit(dt_values_2, jp_values_2, 1)  # Linear fit
+            p2 = np.poly1d(z2)
+            ax.plot(dt_values_2, p2(dt_values_2), color='green',
+                    linestyle='--', label=f"Trendline {ptn_mapping[selected_ptn_2]}")
+
+            # Set label dan judul
             ax.set_xlabel("Daya Tampung")
             ax.set_ylabel("Jumlah Peminat")
             ax.set_title("Scatter Plot antara Daya Tampung dan Jumlah Peminat")
             ax.legend()
+
+            # Tampilkan plot
             st.pyplot(fig)
 
         # Analisis Otomatis
