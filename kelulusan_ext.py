@@ -7,6 +7,7 @@ import numpy as np
 
 
 def show_kelulusan_ext():
+
     # Konfigurasi Google Sheets API
     scope = [
         "https://www.googleapis.com/auth/spreadsheets",
@@ -14,6 +15,8 @@ def show_kelulusan_ext():
     ]
 
     # Buat koneksi dengan kredensial
+    # creds = Credentials.from_service_account_file("credentials.json", scopes=scope)
+    # Membuat objek Credentials dari secrets
     creds = Credentials.from_service_account_info(
         dict(st.secrets["google_credentials"]), scopes=scope
     )
@@ -21,11 +24,22 @@ def show_kelulusan_ext():
 
     # Buka Google Spreadsheet berdasarkan URL atau ID
     spreadsheet_url = "https://docs.google.com/spreadsheets/d/1m2ZTZ1sLSap9fkbfDrItjJdH7P4z3y7Vi_7AkbajoWQ"
+    # Mengakses sheet pertama
     sheet = client.open_by_url(spreadsheet_url).sheet1
 
     # Ambil semua data dari sheet dan konversikan ke DataFrame
     data = sheet.get_all_records()
     df = pd.DataFrame(data)
+
+    # # Menampilkan judul aplikasi
+    # st.title("Data dari Google Spreadsheet")
+
+    # # Menampilkan DataFrame
+    # if not df.empty:
+    #     st.write("Berikut adalah data yang diambil dari Google Spreadsheet:")
+    #     st.dataframe(df)  # Menggunakan st.dataframe untuk tampilan interaktif
+    # else:
+    #     st.write("Data tidak ditemukan atau kosong.")
 
     # Input nilai rata-rata
     st.subheader("Filter Data Berdasarkan Rata-Rata")
@@ -36,22 +50,11 @@ def show_kelulusan_ext():
     st.subheader("Pilih Filter Data")
     pilihan_filter = st.radio("Filter berdasarkan:", ("PTN", "Kelompok Prodi"))
 
-    # Input untuk filter PTN atau Kelompok Prodi menggunakan dropdown
+    # Input untuk filter PTN atau Kelompok Prodi
     if pilihan_filter == "PTN":
-        if 'PTN' in df.columns:  # Pastikan kolom 'PTN' ada di DataFrame
-            # Ambil nilai unik di kolom 'PTN'
-            unique_ptns = df['PTN'].dropna().unique()
-            ptn_terpilih = st.selectbox("Pilih PTN:", options=unique_ptns)
-        else:
-            st.error("Kolom 'PTN' tidak ditemukan di dalam data.")
+        ptn_terpilih = st.text_input("Masukkan nama PTN:")
     else:
-        if 'Kelompok2' in df.columns:  # Pastikan kolom 'Kelompok2' ada di DataFrame
-            # Ambil nilai unik di kolom 'Kelompok2'
-            unique_kelompok = df['Kelompok2'].dropna().unique()
-            kelompok_terpilih = st.selectbox(
-                "Pilih Kelompok Prodi:", options=unique_kelompok)
-        else:
-            st.error("Kolom 'Kelompok2' tidak ditemukan di dalam data.")
+        kelompok_terpilih = st.text_input("Masukkan nama Kelompok Prodi:")
 
     # Kolom yang tidak ingin ditampilkan
     columns_to_exclude = ['No', 'NAMA', '%',
@@ -63,11 +66,12 @@ def show_kelulusan_ext():
             # Filter berdasarkan nilai rata-rata
             filtered_df = df[df['Rata-Rata'] <= nilai_rata_rata]
 
-            if pilihan_filter == "PTN" and 'PTN' in df.columns:
-                filtered_df = filtered_df[filtered_df['PTN'] == ptn_terpilih]
-            elif pilihan_filter == "Kelompok Prodi" and 'Kelompok2' in df.columns:
-                filtered_df = filtered_df[filtered_df['Kelompok2']
-                                          == kelompok_terpilih]
+            if pilihan_filter == "PTN" and 'Diterima di PTN' in df.columns:
+                filtered_df = filtered_df[filtered_df['Diterima di PTN'].str.contains(
+                    ptn_terpilih, na=False, case=False)]
+            elif pilihan_filter == "Kelompok Prodi" and 'Kelompok' in df.columns:
+                filtered_df = filtered_df[filtered_df['Kelompok'].str.contains(
+                    kelompok_terpilih, na=False, case=False)]
 
             # Hapus kolom yang tidak ingin ditampilkan
             filtered_df = filtered_df.drop(columns=[
@@ -81,7 +85,7 @@ def show_kelulusan_ext():
     else:
         st.write("Data tidak ditemukan atau kosong.")
 
-    # Filter berdasarkan sekolah
+    # Pastikan kolom yang dibutuhkan ada di DataFrame
     st.subheader("Filter Data Berdasarkan Nama Sekolah")
     required_columns = ['Sekolah', 'Diterima di PTN', 'TAHUN']
 
@@ -109,7 +113,3 @@ def show_kelulusan_ext():
             st.write(
                 f"Jumlah PTN yang diterima dari Sekolah '{selected_school}' berdasarkan tahun:")
             st.dataframe(ptn_count)
-
-
-# Panggil fungsi
-show_kelulusan_ext()
