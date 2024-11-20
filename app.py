@@ -327,7 +327,7 @@ elif menu == "Peringkat Keketatan":
             df_filtered['Daya Tampung Terakhir'] = df_filtered[last_year_dt_column]
 
             # Filter kolom yang dibutuhkan dan urutkan berdasarkan Rasio Keketatan
-            df_filtered = df_filtered[['NamaProdi', 'PTN', 'Jenjang',
+            df_filtered = df_filtered[['NamaProdi', 'PTN', 'Jenjang', 'Akreditasi',
                                        'Propinsi', 'Rasio Keketatan', 'Daya Tampung Terakhir']]
 
             # Urutkan dengan ekstraksi nilai rasio keketatan numerik
