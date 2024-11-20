@@ -52,9 +52,17 @@ def show_kelulusan_ext():
 
     # Input untuk filter PTN atau Kelompok Prodi
     if pilihan_filter == "PTN":
-        ptn_terpilih = st.text_input("Masukkan nama PTN:")
+        ptn_terpilih = st.selectbox(
+            "Pilih Nama PTN:", df['Diterima di PTN'].unique())
+        df_filtered = df[df['Diterima di PTN'] == ptn_terpilih]
     else:
-        kelompok_terpilih = st.text_input("Masukkan nama Kelompok Prodi:")
+        kelompok_terpilih = st.selectbox(
+            "Pilih Kelompok:", df['Kelompok'].unique())
+        df_filtered = df[df['Kelompok'] == kelompok_terpilih]
+
+    # Periksa jika df_filtered kosong
+    if df_filtered.empty:
+        st.write("Tidak ada data yang sesuai dengan pilihan yang dipilih.")
 
     # Kolom yang tidak ingin ditampilkan
     columns_to_exclude = ['No', 'NAMA', '%',
@@ -91,25 +99,31 @@ def show_kelulusan_ext():
 
     if not all(col in df.columns for col in required_columns):
         st.error(
-            f"DataFrame tidak memiliki kolom yang dibutuhkan: {', '.join(required_columns)}")
+            f"DataFrame tidak memiliki kolom yang dibutuhkan: {', '.join(required_columns)}"
+        )
     else:
         # Dropdown untuk memilih sekolah secara unik
         unique_schools = df['Sekolah'].dropna().unique()
         selected_school = st.selectbox(
-            "Pilih Sekolah:", options=unique_schools)
+            "Pilih Sekolah:", options=unique_schools
+        )
 
         if selected_school:
             # Filter data berdasarkan sekolah yang dipilih
             filtered_df = df[df['Sekolah'] == selected_school]
 
-            # Hitung jumlah PTN berdasarkan kolom 'Diterima di PTN' dan 'TAHUN'
+            # Hitung jumlah PTN berdasarkan kolom 'Diterima di PTN' dan 'TAHUN', lalu pivot
             ptn_count = (
                 filtered_df.groupby(['TAHUN', 'Diterima di PTN'])
                 .size()
                 .reset_index(name='Jumlah')
+                .pivot(index='Diterima di PTN', columns='TAHUN', values='Jumlah')
+                .fillna(0)  # Isi NaN dengan 0
+                .astype(int)  # Pastikan tipe data jumlah adalah integer
             )
 
             # Tampilkan tabel hasil
             st.write(
-                f"Jumlah PTN yang diterima dari Sekolah '{selected_school}' berdasarkan tahun:")
+                f"Jumlah PTN yang diterima dari Sekolah '{selected_school}' berdasarkan tahun:"
+            )
             st.dataframe(ptn_count)
