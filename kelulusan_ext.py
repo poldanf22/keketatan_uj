@@ -50,24 +50,42 @@ def show_kelulusan_ext():
         kelompok_terpilih = st.selectbox("Pilih Kelompok:", df['Kelompok'].dropna().unique()).strip().upper()
         df_filtered = df[df['Kelompok'].str.contains(kelompok_terpilih, na=False, regex=False)]
 
-        # Jika 'Kelompok Prodi' dipilih, buat histogram berdasarkan 'Provinsi PTN'
-        if not df_filtered.empty:
-            # Filter data untuk rata-rata
-            df_filtered = df_filtered[df_filtered['Rata-Rata'] <= nilai_rata_rata]
+        # Filter data lebih lanjut berdasarkan nilai rata-rata
+        df_filtered = df_filtered[df_filtered['Rata-Rata'] <= nilai_rata_rata]
 
-            # Tampilkan histogram jika kolom 'Provinsi PTN' ada
-            if 'Provinsi PTN' in df_filtered.columns:
-                st.subheader(f"Histogram Rata-Rata Kelompok '{kelompok_terpilih}' Berdasarkan Provinsi PTN")
-                
-                # Membuat histogram
+        # Pilihan untuk Provinsi PTN
+        if 'Provinsi PTN' in df_filtered.columns:
+            st.subheader("Pilih Provinsi PTN")
+            provinsi_options = df_filtered['Provinsi PTN'].dropna().unique()
+            provinsi_terpilih = st.multiselect(
+                "Pilih satu atau lebih Provinsi PTN:", options=provinsi_options, default=provinsi_options
+            )
+
+            # Filter data berdasarkan provinsi yang dipilih
+            df_filtered = df_filtered[df_filtered['Provinsi PTN'].isin(provinsi_terpilih)]
+
+            if not df_filtered.empty:
+                # Tampilkan histogram berdasarkan rata-rata
+                st.subheader(f"Histogram Rata-Rata untuk Kelompok '{kelompok_terpilih}' Berdasarkan Provinsi PTN")
+
                 fig, ax = plt.subplots()
-                df_filtered.groupby('Provinsi PTN')['Rata-Rata'].mean().plot(
-                    kind='bar', ax=ax, color='skyblue', edgecolor='black'
-                )
-                ax.set_xlabel("Provinsi PTN")
-                ax.set_ylabel("Rata-Rata")
-                ax.set_title(f"Histogram Rata-Rata Berdasarkan Provinsi PTN untuk '{kelompok_terpilih}'")
+                for provinsi in provinsi_terpilih:
+                    subset = df_filtered[df_filtered['Provinsi PTN'] == provinsi]
+                    ax.hist(
+                        subset['Rata-Rata'],
+                        bins=10,
+                        alpha=0.6,
+                        label=provinsi,
+                        edgecolor='black'
+                    )
+
+                ax.set_xlabel("Rata-Rata")
+                ax.set_ylabel("Frekuensi")
+                ax.set_title(f"Histogram Rata-Rata untuk Kelompok '{kelompok_terpilih}'")
+                ax.legend(title="Provinsi PTN")
                 st.pyplot(fig)
+            else:
+                st.warning("Tidak ada data yang sesuai dengan filter Provinsi PTN yang dipilih.")
 
     # Filter berdasarkan nama sekolah
     st.subheader("Filter Data Berdasarkan Nama Sekolah")
