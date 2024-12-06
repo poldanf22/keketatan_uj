@@ -56,6 +56,8 @@ def show_kelulusan_ext():
             "Pilih Nama PTN:", df['Diterima di PTN'].unique())
         df_filtered = df[df['Diterima di PTN'] == ptn_terpilih]
     else:
+        # Normalisasi kolom 'Kelompok' untuk memastikan konsistensi
+        df['Kelompok'] = df['Kelompok'].str.strip().str.upper()
         kelompok_terpilih = st.selectbox(
             "Pilih Kelompok:", df['Kelompok'].unique()
             ).strip().upper()  # Normalisasi input pengguna
