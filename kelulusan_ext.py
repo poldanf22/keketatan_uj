@@ -2,10 +2,10 @@ import streamlit as st
 import gspread
 from google.oauth2.service_account import Credentials
 import pandas as pd
+import matplotlib.pyplot as plt
 
 
 def show_kelulusan_ext():
-
     # Konfigurasi Google Sheets API
     scope = [
         "https://www.googleapis.com/auth/spreadsheets",
@@ -50,22 +50,24 @@ def show_kelulusan_ext():
         kelompok_terpilih = st.selectbox("Pilih Kelompok:", df['Kelompok'].dropna().unique()).strip().upper()
         df_filtered = df[df['Kelompok'].str.contains(kelompok_terpilih, na=False, regex=False)]
 
-    # Filter berdasarkan nilai rata-rata
-    if not df_filtered.empty:
-        df_filtered = df_filtered[df_filtered['Rata-Rata'] <= nilai_rata_rata]
-    else:
-        st.warning("Tidak ada data yang sesuai dengan filter awal.")
+        # Jika 'Kelompok Prodi' dipilih, buat histogram berdasarkan 'Provinsi PTN'
+        if not df_filtered.empty:
+            # Filter data untuk rata-rata
+            df_filtered = df_filtered[df_filtered['Rata-Rata'] <= nilai_rata_rata]
 
-    # Kolom yang tidak ingin ditampilkan
-    columns_to_exclude = ['No', 'NAMA', '%', 'NAIK/TURUN', 'JML. ELIGIBLE JURUSAN']
-    df_filtered = df_filtered.drop(columns=[col for col in columns_to_exclude if col in df_filtered.columns], errors='ignore')
-
-    # Tampilkan hasil
-    if not df_filtered.empty:
-        st.write(f"Data setelah filter berdasarkan '{pilihan_filter}' dan 'Rata-Rata':")
-        st.dataframe(df_filtered)
-    else:
-        st.warning("Tidak ada data yang sesuai dengan filter.")
+            # Tampilkan histogram jika kolom 'Provinsi PTN' ada
+            if 'Provinsi PTN' in df_filtered.columns:
+                st.subheader(f"Histogram Rata-Rata Kelompok '{kelompok_terpilih}' Berdasarkan Provinsi PTN")
+                
+                # Membuat histogram
+                fig, ax = plt.subplots()
+                df_filtered.groupby('Provinsi PTN')['Rata-Rata'].mean().plot(
+                    kind='bar', ax=ax, color='skyblue', edgecolor='black'
+                )
+                ax.set_xlabel("Provinsi PTN")
+                ax.set_ylabel("Rata-Rata")
+                ax.set_title(f"Histogram Rata-Rata Berdasarkan Provinsi PTN untuk '{kelompok_terpilih}'")
+                st.pyplot(fig)
 
     # Filter berdasarkan nama sekolah
     st.subheader("Filter Data Berdasarkan Nama Sekolah")
