@@ -63,7 +63,7 @@ def show_kelulusan_ext():
         
         # Filter data berdasarkan kelompok yang dipilih
         df_filtered = df[df['Kelompok'] == kelompok_terpilih]
-
+        st.write("Data unik di kolom 'Kelompok':", df['Kelompok'].unique())
 
     # Periksa jika df_filtered kosong
     if df_filtered.empty:
