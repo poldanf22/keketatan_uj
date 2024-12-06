@@ -56,18 +56,26 @@ def show_kelulusan_ext():
             "Pilih Nama PTN:", df['Diterima di PTN'].unique())
         df_filtered = df[df['Diterima di PTN'] == ptn_terpilih]
     else:
-        # Normalisasi kolom 'Kelompok' untuk memastikan konsistensi
+        # Normalisasi kolom 'Kelompok' untuk konsistensi
         df['Kelompok'] = df['Kelompok'].str.strip().str.upper()
-        kelompok_terpilih = st.selectbox(
-            "Pilih Kelompok:", df['Kelompok'].unique()).strip().upper()  # Normalisasi input pengguna
-        
-        # Filter data berdasarkan kelompok yang dipilih
-        df_filtered = df[df['Kelompok'] == kelompok_terpilih]
-        st.write("Data unik di kolom 'Kelompok':", df['Kelompok'].unique())
 
-    # Periksa jika df_filtered kosong
-    if df_filtered.empty:
-        st.write("Tidak ada data yang sesuai dengan pilihan yang dipilih.")
+        # Input untuk filter Kelompok Prodi
+        kelompok_terpilih = st.selectbox(
+            "Pilih Kelompok:", df['Kelompok'].unique()
+        ).strip().upper()  # Normalisasi input pengguna
+
+        # Filter data berdasarkan kelompok yang dipilih (non-regex match)
+        df_filtered = df[df['Kelompok'].str.contains(kelompok_terpilih, na=False, regex=False)]
+
+        # Debugging untuk memastikan data terfilter
+        st.write("Data setelah filter Kelompok:", df_filtered)
+
+        # Jika data kosong, tampilkan pesan peringatan
+        if df_filtered.empty:
+            st.warning("Tidak ada data yang sesuai dengan pilihan kelompok yang dipilih.")
+        else:
+            st.dataframe(df_filtered)
+
 
     # Kolom yang tidak ingin ditampilkan
     columns_to_exclude = ['No', 'NAMA', '%',
