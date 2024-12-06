@@ -59,11 +59,11 @@ def show_kelulusan_ext():
         # Normalisasi kolom 'Kelompok' untuk memastikan konsistensi
         df['Kelompok'] = df['Kelompok'].str.strip().str.upper()
         kelompok_terpilih = st.selectbox(
-            "Pilih Kelompok:", df['Kelompok'].unique()
-            ).strip().upper()  # Normalisasi input pengguna
+            "Pilih Kelompok:", df['Kelompok'].unique()).strip().upper()  # Normalisasi input pengguna
         
         # Filter data berdasarkan kelompok yang dipilih
-        df_filtered = df[df['Kelompok'].str.contains(kelompok_terpilih, na=False, regex=False)]
+        df_filtered = df[df['Kelompok'] == kelompok_terpilih]
+
 
     # Periksa jika df_filtered kosong
     if df_filtered.empty:
