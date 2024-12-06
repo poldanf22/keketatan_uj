@@ -2,8 +2,6 @@ import streamlit as st
 import gspread
 from google.oauth2.service_account import Credentials
 import pandas as pd
-import matplotlib.pyplot as plt
-import numpy as np
 
 
 def show_kelulusan_ext():
@@ -14,8 +12,6 @@ def show_kelulusan_ext():
         "https://www.googleapis.com/auth/drive"
     ]
 
-    # Buat koneksi dengan kredensial
-    # creds = Credentials.from_service_account_file("credentials.json", scopes=scope)
     # Membuat objek Credentials dari secrets
     creds = Credentials.from_service_account_info(
         dict(st.secrets["google_credentials"]), scopes=scope
@@ -24,22 +20,19 @@ def show_kelulusan_ext():
 
     # Buka Google Spreadsheet berdasarkan URL atau ID
     spreadsheet_url = "https://docs.google.com/spreadsheets/d/1m2ZTZ1sLSap9fkbfDrItjJdH7P4z3y7Vi_7AkbajoWQ"
-    # Mengakses sheet pertama
     sheet = client.open_by_url(spreadsheet_url).sheet1
 
     # Ambil semua data dari sheet dan konversikan ke DataFrame
     data = sheet.get_all_records()
     df = pd.DataFrame(data)
 
-    # # Menampilkan judul aplikasi
-    # st.title("Data dari Google Spreadsheet")
+    # Pastikan kolom 'Rata-Rata' ada dan konversikan ke angka
+    if 'Rata-Rata' in df.columns:
+        df['Rata-Rata'] = pd.to_numeric(df['Rata-Rata'], errors='coerce').fillna(0)
 
-    # # Menampilkan DataFrame
-    # if not df.empty:
-    #     st.write("Berikut adalah data yang diambil dari Google Spreadsheet:")
-    #     st.dataframe(df)  # Menggunakan st.dataframe untuk tampilan interaktif
-    # else:
-    #     st.write("Data tidak ditemukan atau kosong.")
+    # Normalisasi kolom 'Kelompok' untuk konsistensi
+    if 'Kelompok' in df.columns:
+        df['Kelompok'] = df['Kelompok'].str.strip().str.upper()
 
     # Input nilai rata-rata
     st.subheader("Filter Data Berdasarkan Rata-Rata")
@@ -50,94 +43,50 @@ def show_kelulusan_ext():
     st.subheader("Pilih Filter Data")
     pilihan_filter = st.radio("Filter berdasarkan:", ("PTN", "Kelompok Prodi"))
 
-    # Periksa apakah kolom 'Rata-Rata' ada
-    if 'Rata-Rata' in df.columns:
-        # Pastikan kolom 'Rata-Rata' berupa angka dan tidak kosong
-        df['Rata-Rata'] = pd.to_numeric(df['Rata-Rata'], errors='coerce')  # Konversi ke angka
-        df['Rata-Rata'] = df['Rata-Rata'].fillna(0)  # Isi NaN dengan 0
-
-        # Filter data berdasarkan nilai rata-rata
-        filtered_df = df[df['Rata-Rata'] <= nilai_rata_rata]
-
-        if pilihan_filter == "PTN" and 'Diterima di PTN' in df.columns:
-            filtered_df = filtered_df[filtered_df['Diterima di PTN'].str.contains(ptn_terpilih, na=False, case=False)]
-        elif pilihan_filter == "Kelompok Prodi" and 'Kelompok' in df.columns:
-            filtered_df = filtered_df[filtered_df['Kelompok'].str.contains(kelompok_terpilih, na=False, regex=False)]
-
-        # Debugging untuk melihat data setelah filter
-        st.write("Data setelah filter berdasarkan 'Rata-Rata':", filtered_df)
-
-        # Tampilkan data
-        if not filtered_df.empty:
-            st.write(f"Data dengan kolom 'Rata-Rata' di bawah atau sama dengan {nilai_rata_rata}:")
-            st.dataframe(filtered_df)
-        else:
-            st.warning("Tidak ada data yang sesuai dengan filter nilai rata-rata.")
+    if pilihan_filter == "PTN":
+        ptn_terpilih = st.selectbox("Pilih Nama PTN:", df['Diterima di PTN'].dropna().unique())
+        df_filtered = df[df['Diterima di PTN'] == ptn_terpilih]
     else:
-        st.error("Kolom 'Rata-Rata' tidak ditemukan di dalam data.")
+        kelompok_terpilih = st.selectbox("Pilih Kelompok:", df['Kelompok'].dropna().unique()).strip().upper()
+        df_filtered = df[df['Kelompok'].str.contains(kelompok_terpilih, na=False, regex=False)]
 
-
+    # Filter berdasarkan nilai rata-rata
+    if not df_filtered.empty:
+        df_filtered = df_filtered[df_filtered['Rata-Rata'] <= nilai_rata_rata]
+    else:
+        st.warning("Tidak ada data yang sesuai dengan filter awal.")
 
     # Kolom yang tidak ingin ditampilkan
-    columns_to_exclude = ['No', 'NAMA', '%',
-                          'NAIK/TURUN', 'JML. ELIGIBLE JURUSAN']
+    columns_to_exclude = ['No', 'NAMA', '%', 'NAIK/TURUN', 'JML. ELIGIBLE JURUSAN']
+    df_filtered = df_filtered.drop(columns=[col for col in columns_to_exclude if col in df_filtered.columns], errors='ignore')
 
-    # Filter DataFrame berdasarkan input nilai rata-rata dan pilihan filter
-    if not df.empty:
-        if 'Rata-Rata' in df.columns:  # Pastikan kolom 'Rata-Rata' ada di DataFrame
-            # Filter berdasarkan nilai rata-rata
-            filtered_df = df[df['Rata-Rata'] <= nilai_rata_rata]
-
-            if pilihan_filter == "PTN" and 'Diterima di PTN' in df.columns:
-                filtered_df = filtered_df[filtered_df['Diterima di PTN'].str.contains(
-                    ptn_terpilih, na=False, case=False)]
-            elif pilihan_filter == "Kelompok Prodi" and 'Kelompok' in df.columns:
-                filtered_df = filtered_df[filtered_df['Kelompok'].str.contains(
-                    kelompok_terpilih, na=False, case=False)]
-
-            # Hapus kolom yang tidak ingin ditampilkan
-            filtered_df = filtered_df.drop(columns=[
-                                           col for col in columns_to_exclude if col in filtered_df.columns], errors='ignore')
-
-            st.write(
-                f"Data dengan kolom 'Rata-Rata' di bawah atau sama dengan {nilai_rata_rata}:")
-            st.dataframe(filtered_df)
-        else:
-            st.write("Kolom 'Rata-Rata' tidak ditemukan di dalam data.")
+    # Tampilkan hasil
+    if not df_filtered.empty:
+        st.write(f"Data setelah filter berdasarkan '{pilihan_filter}' dan 'Rata-Rata':")
+        st.dataframe(df_filtered)
     else:
-        st.write("Data tidak ditemukan atau kosong.")
+        st.warning("Tidak ada data yang sesuai dengan filter.")
 
-    # Pastikan kolom yang dibutuhkan ada di DataFrame
+    # Filter berdasarkan nama sekolah
     st.subheader("Filter Data Berdasarkan Nama Sekolah")
-    required_columns = ['Sekolah', 'Diterima di PTN', 'TAHUN']
-
-    if not all(col in df.columns for col in required_columns):
-        st.error(
-            f"DataFrame tidak memiliki kolom yang dibutuhkan: {', '.join(required_columns)}"
-        )
-    else:
-        # Dropdown untuk memilih sekolah secara unik
+    if 'Sekolah' in df.columns and 'Diterima di PTN' in df.columns and 'TAHUN' in df.columns:
         unique_schools = df['Sekolah'].dropna().unique()
-        selected_school = st.selectbox(
-            "Pilih Sekolah:", options=unique_schools
-        )
+        selected_school = st.selectbox("Pilih Sekolah:", unique_schools)
 
         if selected_school:
-            # Filter data berdasarkan sekolah yang dipilih
-            filtered_df = df[df['Sekolah'] == selected_school]
+            school_filtered_df = df[df['Sekolah'] == selected_school]
 
-            # Hitung jumlah PTN berdasarkan kolom 'Diterima di PTN' dan 'TAHUN', lalu pivot
+            # Hitung jumlah PTN berdasarkan kolom 'Diterima di PTN' dan 'TAHUN'
             ptn_count = (
-                filtered_df.groupby(['TAHUN', 'Diterima di PTN'])
+                school_filtered_df.groupby(['TAHUN', 'Diterima di PTN'])
                 .size()
                 .reset_index(name='Jumlah')
                 .pivot(index='Diterima di PTN', columns='TAHUN', values='Jumlah')
-                .fillna(0)  # Isi NaN dengan 0
-                .astype(int)  # Pastikan tipe data jumlah adalah integer
+                .fillna(0)
+                .astype(int)
             )
 
-            # Tampilkan tabel hasil
-            st.write(
-                f"Jumlah PTN yang diterima dari Sekolah '{selected_school}' berdasarkan tahun:"
-            )
+            st.write(f"Jumlah PTN yang diterima dari Sekolah '{selected_school}' berdasarkan tahun:")
             st.dataframe(ptn_count)
+    else:
+        st.error("Kolom yang dibutuhkan untuk filter nama sekolah tidak ditemukan.")
