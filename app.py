@@ -83,8 +83,13 @@ st.markdown("---")
 # Sidebar menu options
 menu = st.sidebar.radio(
     "Pilih Menu",
-    ("Beranda", "Pembanding Keketatan", "Peringkat Keketatan", "Kelulusan Eksternal SNBP", "Info SNBP", "Info SNBP ITS",
-     "Info SNBP ITB", "Info SNBP UGM", "Info SNBP UNPAD", "Info SNBP IPB")
+    (
+        "Beranda",
+        "Pembanding Keketatan",
+        "Peringkat Keketatan",
+        "Kelulusan Eksternal SNBP",
+        "Info SNBP",
+    ),
 )
 
 # Display content based on menu selection
@@ -372,33 +377,37 @@ elif menu == "Peringkat Keketatan":
             st.write(
                 "Kolom daya tampung atau jumlah peminat tidak ditemukan dalam data.")
 
-elif menu == "Info SNBP UI":
-    st.title("Informasi SNBP di UI")
-    show_info_ui()
+elif menu == "Info SNBP":
+    st.title("Informasi SNBP")
 
-elif menu == "Info SNBP UGM":
-    st.title("Informasi SNBP di UGM")
-    show_info_ugm()
+    # Dropdown untuk memilih universitas
+    pilihan_snbp = st.selectbox(
+        "Pilih Universitas:",
+        ["UI", "ITS", "ITB", "UGM", "UNPAD", "IPB", "UB"],
+    )
 
-elif menu == "Info SNBP ITS":
-    st.title("Informasi SNBP di ITS")
-    show_info_its()
-
-elif menu == "Info SNBP UNPAD":
-    st.title("Informasi SNBP di UNPAD")
-    show_info_unpad()
-
-elif menu == "Info SNBP ITB":
-    st.title("Informasi SNBP di ITB")
-    show_info_itb()
-
-elif menu == "Info SNBP IPB":
-    st.title("Informasi SNBP di IPB")
-    show_info_ipb()
-
-elif menu == "Info SNBP UB":
-    st.title("Informasi SNBP di UB")
-    show_info_ub()
+    # Panggil fungsi berdasarkan universitas yang dipilih
+    if pilihan_snbp == "UI":
+        st.subheader("Informasi SNBP di UI")
+        show_info_ui()
+    elif pilihan_snbp == "ITS":
+        st.subheader("Informasi SNBP di ITS")
+        show_info_its()
+    elif pilihan_snbp == "ITB":
+        st.subheader("Informasi SNBP di ITB")
+        show_info_itb()
+    elif pilihan_snbp == "UGM":
+        st.subheader("Informasi SNBP di UGM")
+        show_info_ugm()
+    elif pilihan_snbp == "UNPAD":
+        st.subheader("Informasi SNBP di UNPAD")
+        show_info_unpad()
+    elif pilihan_snbp == "IPB":
+        st.subheader("Informasi SNBP di IPB")
+        show_info_ipb()
+    elif pilihan_snbp == "UB":
+        st.subheader("Informasi SNBP di UB")
+        show_info_ub()
 
 elif menu == "Kelulusan Eksternal SNBP":
     st.markdown(
