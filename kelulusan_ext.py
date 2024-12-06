@@ -50,31 +50,32 @@ def show_kelulusan_ext():
     st.subheader("Pilih Filter Data")
     pilihan_filter = st.radio("Filter berdasarkan:", ("PTN", "Kelompok Prodi"))
 
-    # Input untuk filter PTN atau Kelompok Prodi
-    if pilihan_filter == "PTN":
-        ptn_terpilih = st.selectbox(
-            "Pilih Nama PTN:", df['Diterima di PTN'].unique())
-        df_filtered = df[df['Diterima di PTN'] == ptn_terpilih]
-    else:
-        # Normalisasi kolom 'Kelompok' untuk konsistensi
-        df['Kelompok'] = df['Kelompok'].str.strip().str.upper()
+    # Periksa apakah kolom 'Rata-Rata' ada
+    if 'Rata-Rata' in df.columns:
+        # Pastikan kolom 'Rata-Rata' berupa angka dan tidak kosong
+        df['Rata-Rata'] = pd.to_numeric(df['Rata-Rata'], errors='coerce')  # Konversi ke angka
+        df['Rata-Rata'] = df['Rata-Rata'].fillna(0)  # Isi NaN dengan 0
 
-        # Input untuk filter Kelompok Prodi
-        kelompok_terpilih = st.selectbox(
-            "Pilih Kelompok:", df['Kelompok'].unique()
-        ).strip().upper()  # Normalisasi input pengguna
+        # Filter data berdasarkan nilai rata-rata
+        filtered_df = df[df['Rata-Rata'] <= nilai_rata_rata]
 
-        # Filter data berdasarkan kelompok yang dipilih (non-regex match)
-        df_filtered = df[df['Kelompok'].str.contains(kelompok_terpilih, na=False, regex=False)]
+        if pilihan_filter == "PTN" and 'Diterima di PTN' in df.columns:
+            filtered_df = filtered_df[filtered_df['Diterima di PTN'].str.contains(ptn_terpilih, na=False, case=False)]
+        elif pilihan_filter == "Kelompok Prodi" and 'Kelompok' in df.columns:
+            filtered_df = filtered_df[filtered_df['Kelompok'].str.contains(kelompok_terpilih, na=False, regex=False)]
 
-        # Debugging untuk memastikan data terfilter
-        st.write("Data setelah filter Kelompok:", df_filtered)
+        # Debugging untuk melihat data setelah filter
+        st.write("Data setelah filter berdasarkan 'Rata-Rata':", filtered_df)
 
-        # Jika data kosong, tampilkan pesan peringatan
-        if df_filtered.empty:
-            st.warning("Tidak ada data yang sesuai dengan pilihan kelompok yang dipilih.")
+        # Tampilkan data
+        if not filtered_df.empty:
+            st.write(f"Data dengan kolom 'Rata-Rata' di bawah atau sama dengan {nilai_rata_rata}:")
+            st.dataframe(filtered_df)
         else:
-            st.dataframe(df_filtered)
+            st.warning("Tidak ada data yang sesuai dengan filter nilai rata-rata.")
+    else:
+        st.error("Kolom 'Rata-Rata' tidak ditemukan di dalam data.")
+
 
 
     # Kolom yang tidak ingin ditampilkan
