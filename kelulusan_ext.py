@@ -57,8 +57,11 @@ def show_kelulusan_ext():
         df_filtered = df[df['Diterima di PTN'] == ptn_terpilih]
     else:
         kelompok_terpilih = st.selectbox(
-            "Pilih Kelompok:", df['Kelompok'].unique())
-        df_filtered = df[df['Kelompok'] == kelompok_terpilih]
+            "Pilih Kelompok:", df['Kelompok'].unique()
+        ).strip().upper()  # Normalisasi input pengguna
+        
+        # Filter data berdasarkan kelompok yang dipilih
+        df_filtered = df[df['Kelompok'].str.contains(kelompok_terpilih, na=False, regex=False)]
 
     # Periksa jika df_filtered kosong
     if df_filtered.empty:
